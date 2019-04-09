@@ -1,0 +1,22 @@
+{
+   "name": "nodejsassignment",
+   "version": "0.0.1",
+   "description": "API Development using NodeJS and TypeORM.",
+   "devDependencies": {
+      "@types/node": "^8.10.45",
+      "ts-node": "3.3.0",
+      "typescript": "^2.5.2"
+   },
+   "dependencies": {
+      "body-parser": "^1.18.3",
+      "express": "^4.16.4",
+      "mysql": "^2.16.0",
+      "reflect-metadata": "^0.1.13",
+      "typeorm": "^0.2.16"
+   },
+   "author": "Ishwar Chandra",
+   "license": "MIT",
+   "scripts": {
+      "start": "ts-node src/index.ts"
+   }
+}

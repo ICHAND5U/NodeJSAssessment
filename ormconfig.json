@@ -1,0 +1,16 @@
+{
+   "type": "mysql",
+   "host": "127.0.0.1",
+   "port": 3306,
+   "username": "root",
+   "password": "rpg01#RPG",
+   "database": "testdb",
+   "synchronize": true,
+   "logging": false,
+   "entities": [
+      "src/entity/**/*.ts"
+   ],
+   "cli": {
+      "entitiesDir": "src/entity"
+   }
+}
