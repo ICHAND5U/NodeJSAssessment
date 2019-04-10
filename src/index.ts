@@ -15,7 +15,7 @@ app.set("port", process.env.PORT || 3000);
 
 
 app.listen(app.get("port"), () => {
-    console.log(("  App is running at http://localhost:%d in %s mode"), app.get("port"), app.get("env"));
+    console.log(("  Server is started at http://localhost:%d in %s mode"), app.get("port"), app.get("env"));
 });
 
 
@@ -29,6 +29,6 @@ app.post("/api/retrievefornotifications", appController.retrieveForNotifications
 createConnection().then(async connection => {
     console.log("DataBase is connected.");
 
-}).catch(error => console.log("TypeORM connection error: ", error));
+}).catch(error => console.log("Error occured during DB Connection: ", error));
 
 module.exports = app;
