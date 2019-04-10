@@ -29,6 +29,8 @@ export let registerStudent = async (req: Request, res: Response) => {
     teacherRepo.saveTeacher(tchr).then((result: any) => {
         // console.log("Result : " + result);
         res.status(204).send(result);
+    }).catch(error => {
+        res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
     });
 };
 
@@ -75,7 +77,9 @@ export let getCommonStudents = async (req: Request, res: Response) => {
                 }
                 // console.log(arryOfArray[arryOfArray.length - 1]);
                 res.json({ "students": arryOfArray[arryOfArray.length - 1].filter(unique) });
-            });
+            }).catch(error => {
+                 res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
+           });
         } else {
             var element = { "teacherEmailAddress": req.query.teacher };
             teacherstudentRepo.getCommonStudents(element).then((result: any) => {
@@ -84,7 +88,9 @@ export let getCommonStudents = async (req: Request, res: Response) => {
                     arry.push(result[i].studentEmailAddress);
                 }
                 res.json({ "students": arry.filter(unique) });
-            });
+            }).catch(error => {
+                res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
+               });
         }
     } else {
         res.status(400).json({ "message": "Please provide valid and complete endpoint " });
@@ -97,6 +103,8 @@ export let suspendStudent = async (req: Request, res: Response) => {
     let studentRepo: StudentRepo = new StudentRepo();
     studentRepo.updateStudent({ "emailAddress": req.body.student }, { "status": "Suspend" }).then((result: any) => {
         res.status(204).send(result);
+    }).catch(error => {
+        res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
     });
 };
 
@@ -131,5 +139,7 @@ export let retrieveForNotifications = async (req: Request, res: Response) => {
                 res.json(resObject);
             });
         }
+    }).catch(error => {
+        res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
     });
 };
