@@ -1,4 +1,4 @@
-import { createConnection } from "typeorm";
+import { createConnection, getConnection } from "typeorm";
 let chaii = require('chai');
 let chaiHttp = require('chai-http');
 let app = require('../src/index');
@@ -8,10 +8,14 @@ chaii.use(chaiHttp);
 describe('Teacher Student API Testing', () => {
 
 	before(function (done) {
-		createConnection().then(async connection => {
-			//console.log("DataBase in testing is connected.");
+		setTimeout(() => {
 			done();
-		}).catch(error => console.log("Error occured during DB Connection while testing: ", error));
+		}, 4000);
+		/*	
+			createConnection().then(async connection => {
+				//console.log("DataBase in testing is connected.");
+				done();
+			}).catch(error => console.log("Error occured during DB Connection while testing: ", error));*/
 	});
 
 	describe('/POST /api/register-Save The Students and Teachers', () => {
