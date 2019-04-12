@@ -12,26 +12,43 @@ export let registerStudent = async (req: Request, res: Response) => {
     let studentRepo: StudentRepo = new StudentRepo();
     let teacherRepo: TeacherRepo = new TeacherRepo();
     let teacherStudentRepo: TeacherStudentRepo = new TeacherStudentRepo();
-    var arr = req.body.students;
-    for (var i = 0; i < arr.length; i++) {
-        let stud: StudentEntity = new StudentEntity();
-        let tchrstud: TeacherStudentEntity = new TeacherStudentEntity();
-        stud.emailAddress = arr[i];
-        stud.status = "Active";
-        // studentArr.push(stud);
-        studentRepo.saveStudent(stud);
-        tchrstud.teacherEmailAddress = req.body.teacher;
-        tchrstud.studentEmailAddress = arr[i];
-        teacherStudentRepo.saveTeacherStudent(tchrstud);
+    if (!(req.body.teacher) || (req.body.teacher.length == 0)) {
+        res.status(400).json({ "success": false, "message": "Teacher Email Id is Empty. Please send correct Json request" });
+    } else if (req.body.students.length > 0) {
+        var arr = req.body.students;
+        var saveTheEntity = true;
+        for (var i = 0; i < arr.length; i++) {
+            if (!(arr[i]) || (arr[i].length == 0)) {
+                saveTheEntity = false;
+                res.status(400).json({ "success": false, "message": "Some Element(s) in Student List is(are) Empty. Please send correct Json request" });
+                break;
+            }
+        }
+        if (saveTheEntity) {
+            for (var i = 0; i < arr.length; i++) {
+                let stud: StudentEntity = new StudentEntity();
+                let tchrstud: TeacherStudentEntity = new TeacherStudentEntity();
+                stud.emailAddress = arr[i];
+                stud.status = "Active";
+                // studentArr.push(stud);
+                studentRepo.saveStudent(stud);
+                tchrstud.teacherEmailAddress = req.body.teacher;
+                tchrstud.studentEmailAddress = arr[i];
+                teacherStudentRepo.saveTeacherStudent(tchrstud);
+            }
+            let tchr: TeacherEntity = new TeacherEntity();
+            tchr.emailAddress = req.body.teacher;
+            teacherRepo.saveTeacher(tchr).then((result: any) => {
+                // console.log("Result : " + result);
+                // res.header('application/json');
+                res.status(204).send();
+            }).catch(error => {
+                res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
+            });
+        }
+    } else {
+        res.status(400).json({ "success": false, "message": "There is no student in the list. Please send correct Json request" });
     }
-    let tchr: TeacherEntity = new TeacherEntity();
-    tchr.emailAddress = req.body.teacher;
-    teacherRepo.saveTeacher(tchr).then((result: any) => {
-        // console.log("Result : " + result);
-        res.status(204).send(result);
-    }).catch(error => {
-        res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
-    });
 };
 
 
@@ -78,8 +95,8 @@ export let getCommonStudents = async (req: Request, res: Response) => {
                 // console.log(arryOfArray[arryOfArray.length - 1]);
                 res.json({ "students": arryOfArray[arryOfArray.length - 1].filter(unique) });
             }).catch(error => {
-                 res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
-           });
+                res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
+            });
         } else {
             var element = { "teacherEmailAddress": req.query.teacher };
             teacherstudentRepo.getCommonStudents(element).then((result: any) => {
@@ -90,22 +107,32 @@ export let getCommonStudents = async (req: Request, res: Response) => {
                 res.json({ "students": arry.filter(unique) });
             }).catch(error => {
                 res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
-               });
+            });
         }
     } else {
-        res.status(400).json({ "message": "Please provide valid and complete endpoint " });
+        res.status(400).json({ "success": false, "message": "Please provide valid and complete endpoint" });
     }
 };
 
 
 // Susprnding Student
 export let suspendStudent = async (req: Request, res: Response) => {
-    let studentRepo: StudentRepo = new StudentRepo();
-    studentRepo.updateStudent({ "emailAddress": req.body.student }, { "status": "Suspend" }).then((result: any) => {
-        res.status(204).send(result);
-    }).catch(error => {
-        res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
-    });
+    if (req.body.student) {
+        let studentRepo: StudentRepo = new StudentRepo();
+        studentRepo.updateStudent({ "emailAddress": req.body.student }, { "status": "Suspend" }).then((result: any) => {
+            if (result.raw.affectedRows != 0) {
+                res.status(204).send();
+            }
+            else {
+                res.status(500).json({ "success": false, "message": "Either Student is not registered or already suspended or some database constraint, the Student can not be suspended. Please contact system Administrator" });
+            }
+        }).catch(error => {
+            res.status(500).json({ "message": "Something went wrong. Please contact System Administrator." })
+        });
+    } else {
+        res.status(400).json({ "success": false, "message": "There is no student in the list. Please send correct Json request" });
+    }
+
 };
 
 
