@@ -5,7 +5,7 @@ export class TeacherStudentRepo {
 
 
     getCommonStudents(arr) {
-        console.log("Inside Teacher student map");
+       // console.log("Inside Teacher student map");
         return getManager().getRepository(TeacherStudentEntity).find({
             where: arr
         });
