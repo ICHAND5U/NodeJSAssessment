@@ -9,18 +9,19 @@ import { TeacherStudentEntity } from "../entity/teacherStudentMap";
 
 // Registering Students
 export let registerStudent = async (req: Request, res: Response) => {
-    let studentRepo: StudentRepo = new StudentRepo();
-    let teacherRepo: TeacherRepo = new TeacherRepo();
-    let teacherStudentRepo: TeacherStudentRepo = new TeacherStudentRepo();
+
     if (!(req.body.teacher) || (req.body.teacher.length == 0)) {
-        res.status(400).json({ "success": false, "message": "Teacher Email Id is Empty. Please send correct Json request" });
+        res.status(400).json({ "message": "Teacher Email Id is Empty. Please send correct Json request" });
     } else if (req.body.students.length > 0) {
+        let studentRepo: StudentRepo = new StudentRepo();
+        let teacherRepo: TeacherRepo = new TeacherRepo();
+        let teacherStudentRepo: TeacherStudentRepo = new TeacherStudentRepo();
         var arr = req.body.students;
         var saveTheEntity = true;
         for (var i = 0; i < arr.length; i++) {
             if (!(arr[i]) || (arr[i].length == 0)) {
                 saveTheEntity = false;
-                res.status(400).json({ "success": false, "message": "Some Element(s) in Student List is(are) Empty. Please send correct Json request" });
+                res.status(400).json({ "message": "Some Element(s) in Student List is(are) Empty. Please send correct Json request" });
                 break;
             }
         }
@@ -47,7 +48,7 @@ export let registerStudent = async (req: Request, res: Response) => {
             });
         }
     } else {
-        res.status(400).json({ "success": false, "message": "There is no student in the list. Please send correct Json request" });
+        res.status(400).json({ "message": "There is no student in the list. Please send correct Json request" });
     }
 };
 
@@ -110,7 +111,7 @@ export let getCommonStudents = async (req: Request, res: Response) => {
             });
         }
     } else {
-        res.status(400).json({ "success": false, "message": "Please provide valid and complete endpoint" });
+        res.status(400).json({ "message": "Please provide valid and complete endpoint" });
     }
 };
 
@@ -124,13 +125,13 @@ export let suspendStudent = async (req: Request, res: Response) => {
                 res.status(204).send();
             }
             else {
-                res.status(500).json({ "success": false, "message": "Either Student is not registered or already suspended or some database constraint, the Student can not be suspended. Please contact system Administrator" });
+                res.status(500).json({ "message": "Either Student is not registered or already suspended or some database constraint, the Student can not be suspended. Please contact system Administrator" });
             }
         }).catch(error => {
             res.status(500).json({ "message": "Something went wrong. Please contact System Administrator." })
         });
     } else {
-        res.status(400).json({ "success": false, "message": "There is no student in the list. Please send correct Json request" });
+        res.status(400).json({ "message": "There is no student in the list. Please send correct Json request" });
     }
 
 };
@@ -138,35 +139,43 @@ export let suspendStudent = async (req: Request, res: Response) => {
 
 // Notification
 export let retrieveForNotifications = async (req: Request, res: Response) => {
-    let teacherstudentRepo: TeacherStudentRepo = new TeacherStudentRepo();
-    let studentRepo: StudentRepo = new StudentRepo();
-    var element = { "teacherEmailAddress": req.body.teacher };
-    teacherstudentRepo.getCommonStudents(element).then((result: any) => {
-        var arry = new Array();
-        for (var i = 0; i < result.length; i++) {
-            arry.push(result[i].studentEmailAddress);
-        }
-        var studentList = req.body.notification.split(" @");
-        for (var i = 0; i < studentList.length; i++) {
-            arry.push(studentList[i]);
-        }
-        var queryArray = new Array();
-        if (arry.length >= 1) {
-            for (var i = 0; i < arry.length; i++) {
-                var element = { "emailAddress": arry[i], "status": "Active" };
-                queryArray.push(element);
-            }
-            var queryCondition = { where: queryArray }
-            studentRepo.getStudents(queryCondition).then((result: any) => {
-                var studentArray = new Array();
+    if (!(req.body.teacher) || (req.body.teacher.length == 0)) {
+        res.status(400).json({ "message": "Teacher Email Id is Empty. Please send correct Json request" });
+    } else if (!(req.body.notification) || (req.body.notification.length == 0)) {
+        res.status(400).json({ "message": "Notification information is Empty. Please send correct Json request" });
+    } else {
+        {
+            let teacherstudentRepo: TeacherStudentRepo = new TeacherStudentRepo();
+            let studentRepo: StudentRepo = new StudentRepo();
+            var element = { "teacherEmailAddress": req.body.teacher };
+            teacherstudentRepo.getCommonStudents(element).then((result: any) => {
+                var arry = new Array();
                 for (var i = 0; i < result.length; i++) {
-                    studentArray.push(result[i].emailAddress);
+                    arry.push(result[i].studentEmailAddress);
                 }
-                var resObject = { "recipients": studentArray }
-                res.json(resObject);
+                var studentList = req.body.notification.split(" @");
+                for (var i = 0; i < studentList.length; i++) {
+                    arry.push(studentList[i]);
+                }
+                var queryArray = new Array();
+                if (arry.length >= 1) {
+                    for (var i = 0; i < arry.length; i++) {
+                        var element = { "emailAddress": arry[i], "status": "Active" };
+                        queryArray.push(element);
+                    }
+                    var queryCondition = { where: queryArray }
+                    studentRepo.getStudents(queryCondition).then((result: any) => {
+                        var studentArray = new Array();
+                        for (var i = 0; i < result.length; i++) {
+                            studentArray.push(result[i].emailAddress);
+                        }
+                        var resObject = { "recipients": studentArray }
+                        res.json(resObject);
+                    });
+                }
+            }).catch(error => {
+                res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
             });
         }
-    }).catch(error => {
-        res.status(500).json({ "message": "Something went wrong. Please contact System administrator." })
-    });
+    }
 };
