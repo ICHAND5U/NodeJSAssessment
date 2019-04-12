@@ -1,10 +1,10 @@
+
 import * as express from 'express';
 import * as bodyParser from "body-parser";
 import "reflect-metadata";
 import { createConnection } from "typeorm";
-
-
 import * as appController from "./controllers/appController";
+
 
 
 const app = express();
