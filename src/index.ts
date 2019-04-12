@@ -27,7 +27,7 @@ app.post("/api/retrievefornotifications", appController.retrieveForNotifications
 
 
 createConnection().then(async connection => {
-    console.log("DataBase is connected.");
+   // console.log("DataBase is connected.");
 
 }).catch(error => console.log("Error occured during DB Connection: ", error));
 
