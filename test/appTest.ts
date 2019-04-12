@@ -10,7 +10,7 @@ describe('Teacher Student API Testing', () => {
 	before(function (done) {
 		setTimeout(() => {
 			done();
-		}, 4000);
+		}, 8000);
 		/*	
 			createConnection().then(async connection => {
 				//console.log("DataBase in testing is connected.");
