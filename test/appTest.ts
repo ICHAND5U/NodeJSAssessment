@@ -14,7 +14,7 @@ describe('Teacher Student API Testing', () => {
 		}).catch(error => console.log("Error occured during DB Connection while testing: ", error));
 	});
 
-	describe('/POST/api/register-Save The Students and Teachers', () => {
+	describe('/POST /api/register-Save The Students and Teachers', () => {
 		it('Test Case Scenario-1:  Teacher email Address is Empty', (done) => {
 			let teacherStudObj = {
 				"teacher": "",
@@ -29,8 +29,6 @@ describe('Teacher Student API Testing', () => {
 				.end((error, res) => {
 					res.should.be.json;
 					res.should.have.status(400);
-					res.body.should.have.property('success');
-					res.body.success.should.equal(false);
 					res.body.should.have.property('message');
 					res.body.message.should.equal('Teacher Email Id is Empty. Please send correct Json request');
 					done();
@@ -47,8 +45,6 @@ describe('Teacher Student API Testing', () => {
 				.end((error, res) => {
 					res.should.be.json;
 					res.should.have.status(400);
-					res.body.should.have.property('success');
-					res.body.success.should.equal(false);
 					res.body.should.have.property('message');
 					res.body.message.should.equal('There is no student in the list. Please send correct Json request');
 					done();
@@ -66,8 +62,6 @@ describe('Teacher Student API Testing', () => {
 				.end((error, res) => {
 					res.should.be.json;
 					res.should.have.status(400);
-					res.body.should.have.property('success');
-					res.body.success.should.equal(false);
 					res.body.should.have.property('message');
 					res.body.message.should.equal('Some Element(s) in Student List is(are) Empty. Please send correct Json request');
 					done();
@@ -85,8 +79,6 @@ describe('Teacher Student API Testing', () => {
 				.end((error, res) => {
 					res.should.be.json;
 					res.should.have.status(400);
-					res.body.should.have.property('success');
-					res.body.success.should.equal(false);
 					res.body.should.have.property('message');
 					res.body.message.should.equal('Some Element(s) in Student List is(are) Empty. Please send correct Json request');
 					done();
@@ -124,21 +116,19 @@ describe('Teacher Student API Testing', () => {
 	});
 
 
-	describe('GET/api/commonstudents-Get Common Students List', () => {
+	describe('GET /api/commonstudents-Get Common Students List', () => {
 		it('Test Case Scenario-7:  Teacher Email Address is not present in the request', (done) => {
 			chaii.request(app)
 				.get('/api/commonstudents')
 				.end((error, res) => {
 					res.should.be.json;
 					res.should.have.status(400);
-					res.body.should.have.property('success');
-					res.body.success.should.equal(false);
 					res.body.should.have.property('message');
 					res.body.message.should.equal('Please provide valid and complete endpoint');
 					done();
 				});
 		});
-		it('Test Case Scenario-8:  Students of single teacher mentioned in get request will be retrieved', (done) => {
+		it('Test Case Scenario-8:  Students of single teacher mentioned in GET request will be retrieved', (done) => {
 			chaii.request(app)
 				.get('/api/commonstudents?teacher=teacher6@example.com')
 				.end((error, res) => {
@@ -175,8 +165,6 @@ describe('Teacher Student API Testing', () => {
 				.end((error, res) => {
 					res.should.be.json;
 					res.should.have.status(400);
-					res.body.should.have.property('success');
-					res.body.success.should.equal(false);
 					res.body.should.have.property('message');
 					res.body.message.should.equal('There is no student in the list. Please send correct Json request');
 					done();
@@ -192,8 +180,6 @@ describe('Teacher Student API Testing', () => {
 				.end((error, res) => {
 					res.should.be.json;
 					res.should.have.status(500);
-					res.body.should.have.property('success');
-					res.body.success.should.equal(false);
 					res.body.should.have.property('message');
 					res.body.message.should.equal('Either Student is not registered or already suspended or some database constraint, the Student can not be suspended. Please contact system Administrator');
 					done();
@@ -208,6 +194,71 @@ describe('Teacher Student API Testing', () => {
 				.send(teacherStudObj)
 				.end((error, res) => {
 					res.should.have.status(204);
+					done();
+				});
+		});
+	});
+
+	describe('/POST /api/retrievefornotifications-Email Notification', () => {
+		it('Test Case Scenario-13:  Teacher email Address is Empty', (done) => {
+			let teacherStudObj = {
+				"teacher": "",
+				"notification": "Hello students! @student11@example.com @student21@example.com"
+			}
+			chaii.request(app)
+				.post('/api/retrievefornotifications')
+				.send(teacherStudObj)
+				.end((error, res) => {
+					res.should.be.json;
+					res.should.have.status(400);
+					res.body.should.have.property('message');
+					res.body.message.should.equal('Teacher Email Id is Empty. Please send correct Json request');
+					done();
+				});
+		});
+		it('Test Case Scenario-14:  Notification Information is Empty', (done) => {
+			let teacherStudObj = {
+				"teacher": "teacher14@example.com",
+				"notification": ""
+			};
+			chaii.request(app)
+				.post('/api/retrievefornotifications')
+				.send(teacherStudObj)
+				.end((error, res) => {
+					res.should.be.json;
+					res.should.have.status(400);
+					res.body.should.have.property('message');
+					res.body.message.should.equal('Notification information is Empty. Please send correct Json request');
+					done();
+				});
+		});
+		it('Test Case Scenario-15:  Student must not be suspended, registered and (student should be mentioned in the notification or student should be registered with the teacher)', (done) => {
+			let teacherStudObj = {
+				"teacher": "teacher5@example.com",
+				"notification": "Hello students! @student52@example.com @student51@example.com @student63@example.com"
+			};
+			chaii.request(app)
+				.post('/api/retrievefornotifications')
+				.send(teacherStudObj)
+				.end((error, res) => {
+					//	console.log(res.body);
+					res.should.be.json;
+					res.should.have.status(200);
+					done();
+				});
+		});
+		it('Test Case Scenario-16:  All students who are not suspended and are registered with the teacher will be included in the response)', (done) => {
+			let teacherStudObj = {
+				"teacher": "teacher5@example.com",
+				"notification": "Hey everybody"
+			};
+			chaii.request(app)
+				.post('/api/retrievefornotifications')
+				.send(teacherStudObj)
+				.end((error, res) => {
+					//console.log(res.body);
+					res.should.be.json;
+					res.should.have.status(200);
 					done();
 				});
 		});
